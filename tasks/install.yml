@@ -1,12 +1,12 @@
 - name: Copy mount-data-disks script
-  template: src=templates/mount-data-disks.j2 dest=/usr/local/bin/mount-data-disks mode=0775
+  template: src=templates/mount-data-disks.j2 dest={{mdd_mount_path}} mode=0775
 
 - name: Copy umount-data-disks script
-  template: src=templates/umount-data-disks.j2 dest=/usr/local/bin/umount-data-disks mode=0775
+  template: src=templates/umount-data-disks.j2 dest={{mdd_umount_path}} mode=0775
 
 
 - name: Copy mount-data-disks.service
-  copy: src=files/mount-data-disks.service dest=/etc/systemd/system/mount-data-disks.service
+  templates: src=templates/mount-data-disks.service.j2 dest={{mdd_service_path}}
   notify:
     - reload systemd
     - restart mount-data-disks

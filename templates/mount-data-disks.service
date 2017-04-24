@@ -3,7 +3,7 @@ Description=Mount data disks
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/mount-data-disks
+ExecStart={{mdd_mount_path}}
 
 [Install]
 WantedBy=multi-user.target

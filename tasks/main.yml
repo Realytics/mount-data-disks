@@ -1,18 +1,3 @@
-- name: Copy mount-data-disks script
-  template: src=templates/mount-data-disks.j2 dest=/usr/local/bin/mount-data-disks mode=0775
 
-- name: Copy umount-data-disks script
-  template: src=templates/umount-data-disks.j2 dest=/usr/local/bin/umount-data-disks mode=0775
-
-
-- name: Copy mount-data-disks.service
-  copy: src=files/mount-data-disks.service dest=/etc/systemd/system/mount-data-disks.service
-  notify:
-    - reload systemd
-    - restart mount-data-disks
-
-- meta: flush_handlers
-
-- name: Enable and start mount-data-disks.service
-  service: name=mount-data-disks state=started enabled=on
-
+- include: install.yml
+  become: yes

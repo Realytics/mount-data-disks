@@ -1,4 +1,5 @@
 # mount-data-disks
+
 Automatically format and mount data disks on virtual machine instances.
 
 This role is made of a script `mount-data-disks` that:
@@ -9,19 +10,22 @@ that are not already mounted and that do not exist in /etc/fstab)
 - Create subdirectories and set permissions on the mountpoints
 
 
-## Usage
+## Usage
+
 The script `mount-data-disks` is automatically launched at startup (via systemd).
 You may run the commands `mount-data-disks` and `umount-data-disks` to
 respectively mount and un-mount the data disks manually.
 
 
 ## Requirements
+
 The scripts run with bash. They have been tested on Ubuntu 16.04+ only so far.
 The only true requirement is a systemd compatible system to call the
 command mount-data-disks at boot time.
 
 
 ## Naming
+
 The mountpoints ("/data-X") begin at 0 and rise incrementally,
 in the order of the eligible device blocks.
 Here is an example output of `df -h` on a machine configured with this role:
@@ -37,6 +41,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 
 ## Variables
+
 ```yamlex
 # File keeping track of mounted disks
 mdd_file: /var/run/data-mountpoints
@@ -54,5 +59,6 @@ mdd_min_disk_size: 100122547200
 ```
 
 ## License
+
 MIT
 

@@ -1,11 +1,15 @@
 ---
 # defaults file for mount-data-disks
 
+# File keeping track of mounted disks
 mdd_file: /var/run/data-mountpoints
 
+# Subdirectories to create on every mounted disk
 mdd_subdirectories: []
 
-mdd_final_user: data
-mdd_final_group: data
+# Owner and group of the mounted disks
+mdd_final_user: root
+mdd_final_group: root
 
-
+# Minimum disk size in bytes (default: 100GB)
+mdd_min_disk_size: 100122547200

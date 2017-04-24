@@ -23,8 +23,8 @@ function get_device_uuid {
 }
 
 function device_is_valid {
-    # The device must be larger than 100GB
-    if [ ! $(get_device_size ${1}) -ge 100122547200 ]
+    # The device must be larger than a certain size (expressed in bytes)
+    if [ ! $(get_device_size ${1}) -ge {{mdd_min_disk_size}} ]
     then
         >&2 echo "Device ${1} is too small"
         return 1

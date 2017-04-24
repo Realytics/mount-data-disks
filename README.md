@@ -9,10 +9,11 @@ that are not already mounted and that do not exist in /etc/fstab)
 - Mount the disks on /data-0, data-1, ... mountpoints
 - Create subdirectories and set permissions on the mountpoints
 
-
 ## Usage
 
 The script `mount-data-disks` is automatically launched at startup (via systemd).
+Indeed, the mount is temporary: nothing is ever written in /etc/fstab.
+
 You may run the commands `mount-data-disks` and `umount-data-disks` to
 respectively mount and un-mount the data disks manually.
 

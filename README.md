@@ -3,7 +3,7 @@
 Automatically format and mount data disks on virtual machine instances.
 
 This role is made of a script `mount-data-disks` that:
-- Looks for data disks (disk larger than a given size
+- Looks for data disks (disks larger than a given size
 that are not already mounted and that do not exist in /etc/fstab)
 - Format the eligible disks with a single ext4 partition
 - Mount the disks on /data-0, data-1, ... mountpoints

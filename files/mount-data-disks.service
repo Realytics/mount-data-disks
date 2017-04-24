@@ -1,0 +1,9 @@
+[Unit]
+Description=Mount data disks
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mount-data-disks
+
+[Install]
+WantedBy=multi-user.target

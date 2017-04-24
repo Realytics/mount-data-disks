@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# Un-mount disks mounted on /data-*
+
+
+MOUNTPOINTS_FILE="{{mdd_file}}"
+
+function list_mountpoints {
+    df | grep -Eo "/data-[0-9]+"
+}
+
+
+function umount_all {
+    for MOUNTPOINT in $(list_mountpoints)
+    do
+        # Clean temporary directories
+        sudo rm -r "${MOUNTPOINT}/tmp"
+
+        # Umount disk
+        grep -qs ${MOUNTPOINT} /proc/mounts && sudo umount ${MOUNTPOINT}
+
+        # Remove mountpoint
+        sudo rmdir ${MOUNTPOINT}
+
+        echo ${MOUNTPOINT}
+    done
+}
+
+
+umount_all
+truncate -s 0 ${MOUNTPOINTS_FILE}  # Purge output file

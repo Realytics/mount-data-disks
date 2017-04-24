@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+# RUN AS PRIVILEDGED USER
+
+# Automatically mount disks to specific mountpoints
+
+# Detect block devices larger than a given size
+# If necessary, format them and mount them as /data-0, /data-1, and so on
+# The list of available mountpoints is written in {{mdd_file}} and printed to stdout
+
+set -e
+
+
+MOUNTPOINTS_FILE={{mdd_file}}
+
+
+function get_device_size {
+    echo $(lsblk ${1} -dnrb | cut -d" " -f4)
+}
+
+function get_device_uuid {
+    # Get the uuid of the device first partition
+    echo $(lsblk ${1}1 -dnrb -o +UUID | cut -d" " -f8)
+}
+
+function device_is_valid {
+    # The device must be larger than 100GB
+    if [ ! $(get_device_size ${1}) -ge 100122547200 ]
+    then
+        >&2 echo "Device ${1} is too small"
+        return 1
+    fi
+
+    # The device must not be mentioned in /etc/fstab
+    if grep -qE "^${1}" /etc/fstab
+    then
+        >&2 echo "Device ${1} found in /etc/fstab"
+        return 1
+    fi
+
+    # The device UUID must not be found in /etc/fstab
+    if [ -e ${1}1 ]
+    then
+        if grep -qE "UUID=$(get_device_uuid ${1})" /etc/fstab
+        then
+            >&2 echo "Device's UUID for ${1} found in /etc/fstab"
+            return 1
+        fi
+    fi
+
+    # The device (or its partition) must not be already mounted elsewhere than /data-*
+    if cat /proc/mounts | grep -E "^${1}[0-9]* " | cut -f2 -d" " | grep -qvE "/data-[0-9]+"
+    then
+        >&2 echo "Device ${1} already mounted elsewhere than /data-*"
+        return 1
+    fi
+}
+
+function list_devices {
+    ALL_DEVICES=$(lsblk -dpnr | cut -d" " -f1)
+
+    for D in ${ALL_DEVICES}
+    do
+        if device_is_valid ${D}
+        then
+            echo ${D}
+        fi
+    done
+}
+
+
+function format_device {
+    >&2 echo "Formatting ${1}"
+    (echo o; echo n; echo p; echo 1; echo; echo; echo w;) | sudo fdisk ${1} 1> /dev/null
+    sudo mkfs.ext4 ${1}1 1> /dev/null
+}
+
+function create_directory {
+    DIR=${1}
+    [ -d ${MOUNTPOINT}/${DIR} ] || sudo mkdir -p ${MOUNTPOINT}/${DIR}
+    sudo chown {{mdd_final_user}}:{{mdd_final_group}} ${MOUNTPOINT}/${DIR}
+}
+
+
+function mount_all {
+    I=0
+
+    for DEVICE in $(list_devices)
+    do
+        PARTITION=${DEVICE}1
+        MOUNTPOINT=/data-${I}
+
+        # Format device
+        [ -e ${PARTITION} ] || format_device ${DEVICE}
+
+        # Create mountpoint
+        [ -d ${MOUNTPOINT} ] || sudo mkdir -p ${MOUNTPOINT}
+
+        # Mount disk on mountpoint
+        grep -qs $PARTITION /proc/mounts || sudo mount -o noatime ${PARTITION} ${MOUNTPOINT}
+
+        sudo chown {{mdd_final_user}}:{{mdd_final_group}} ${MOUNTPOINT}
+
+        {% for directory in mdd_subdirectories %}
+            create_directory "{{directory}}"
+        {% endfor %}
+
+        echo ${MOUNTPOINT}
+        echo ${MOUNTPOINT} >> "${MOUNTPOINTS_FILE}"
+
+        I=$(($I+1))
+    done
+}
+
+
+
+if [[ $EUID -ne 0 ]]; then
+    >&2 echo "You must be a root user" 2>&1
+    exit 1
+fi
+
+
+if [ -z "${MOUNTPOINTS_FILE}" ]
+then
+    >&2 echo "MOUNTPOINTS_FILE is empty, aborting"
+    exit 1
+fi
+
+truncate -s 0 ${MOUNTPOINTS_FILE}  # Purge output file
+mount_all
+

@@ -1,0 +1,11 @@
+---
+# defaults file for mount-data-disks
+
+mdd_file: /var/run/data-mountpoints
+
+mdd_subdirectories: []
+
+mdd_final_user: data
+mdd_final_group: data
+
+

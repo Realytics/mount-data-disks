@@ -1,0 +1,12 @@
+---
+# handlers file for mount-data-disks
+
+
+- name: reload systemd
+  become: True
+  command: systemctl daemon-reload
+
+- name: restart mount-data-disks
+  become: True
+  service: name=mount-data-disks state=restarted
+

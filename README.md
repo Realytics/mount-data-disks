@@ -21,12 +21,12 @@ respectively mount and un-mount the data disks manually.
 
 The scripts run with bash. They have been tested on Ubuntu 16.04+ only so far.
 The only true requirement is a systemd compatible system to call the
-command mount-data-disks at boot time.
+command `mount-data-disks` at boot time.
 
 
 ## Naming
 
-The mountpoints ("/data-X") begin at 0 and rise incrementally,
+The mountpoints (/data-X) begin at 0 and rise incrementally,
 in the order of the eligible device blocks.
 Here is an example output of `df -h` on a machine configured with this role:
 ```
